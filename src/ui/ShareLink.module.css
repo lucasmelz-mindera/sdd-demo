@@ -1,0 +1,25 @@
+.share {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.url {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 12px;
+  color: var(--text-h);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.copy {
+  padding: 8px 16px;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+}
