@@ -3,7 +3,7 @@ import { newGame, reduce, type Action, type GameState } from '../game/ticTacToe'
 import { hostSession, type Session } from '../net/session'
 import type { Profile } from '../profile/profile'
 import { shareUrl } from './roomId'
-import type { RoomView } from './roomView'
+import { playing, type RoomView } from './roomView'
 
 /** The host owns the only GameState and broadcasts it in full after every change. */
 export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) {
@@ -23,7 +23,7 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
     session.current?.send({ type: 'state', state: next })
     if (next === current) return
     game.current = next
-    setView({ status: 'playing', game: next, me: 'host' })
+    setView(playing(next, 'host'))
   }, [])
 
   useEffect(() => {
@@ -41,9 +41,11 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
             game.current = newGame(profile, { name: m.name, emoji: m.emoji })
             s.send({ type: 'hello', name: profile.name, emoji: profile.emoji, game: 'tic-tac-toe' })
             s.send({ type: 'state', state: game.current })
-            setView({ status: 'playing', game: game.current, me: 'host' })
+            setView(playing(game.current, 'host'))
           } else if (m.type === 'move') {
             apply({ type: 'move', seat: 'guest', cell: m.cell })
+          } else if (m.type === 'rematch') {
+            apply({ type: 'rematch', seat: 'guest' })
           }
           return
         }
@@ -58,5 +60,6 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
   }, [profile, apply])
 
   const move = useCallback((cell: number) => apply({ type: 'move', seat: 'host', cell }), [apply])
-  return { view, move }
+  const rematch = useCallback(() => apply({ type: 'rematch', seat: 'host' }), [apply])
+  return { view, move, rematch }
 }

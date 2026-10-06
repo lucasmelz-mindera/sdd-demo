@@ -10,6 +10,7 @@ describe('parseMessage accepts', () => {
     ['host hello with game', { type: 'hello', name: 'Bo', emoji: '🐶', game: 'tic-tac-toe' }],
     ['move to cell 0', { type: 'move', cell: 0 }],
     ['move to cell 8', { type: 'move', cell: 8 }],
+    ['rematch', { type: 'rematch' }],
     ['state', { type: 'state', state }],
   ])('%s', (_, data) => {
     expect(parseMessage(data)).toEqual(data)
@@ -41,6 +42,8 @@ describe('parseMessage rejects', () => {
     ['move with cell 9', { type: 'move', cell: 9 }],
     ['move with non-integer cell', { type: 'move', cell: 2.5 }],
     ['move with NaN cell', { type: 'move', cell: NaN }],
+    ['rematch with a non-string type', { type: ['rematch'] }],
+    ['rematch-ish unknown type', { type: 'Rematch' }],
     ['state without state', { type: 'state' }],
     ['state with board of 8', { type: 'state', state: { ...state, board: state.board.slice(1) } }],
     ['state with bad cell value', { type: 'state', state: { ...state, board: ['Z', ...state.board.slice(1)] } }],

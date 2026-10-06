@@ -23,3 +23,8 @@
 .cell:disabled {
   cursor: default;
 }
+
+.win {
+  color: var(--accent);
+  border-color: var(--accent);
+}
