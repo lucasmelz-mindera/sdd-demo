@@ -16,11 +16,11 @@ export function RoomPage() {
 function HostRoom() {
   const navigate = useNavigate()
   const onOpen = useCallback((id: string) => navigate(`/room/${id}`, { replace: true }), [navigate])
-  const { view, move } = useHostRoom(HOST_PLACEHOLDER, onOpen)
-  return <RoomScreen view={view} move={move} />
+  const { view, move, rematch } = useHostRoom(HOST_PLACEHOLDER, onOpen)
+  return <RoomScreen view={view} move={move} rematch={rematch} />
 }
 
 function GuestRoom({ roomId }: { roomId: string }) {
-  const { view, move } = useGuestRoom(roomId, GUEST_PLACEHOLDER)
-  return <RoomScreen view={view} move={move} />
+  const { view, move, rematch } = useGuestRoom(roomId, GUEST_PLACEHOLDER)
+  return <RoomScreen view={view} move={move} rematch={rematch} />
 }
