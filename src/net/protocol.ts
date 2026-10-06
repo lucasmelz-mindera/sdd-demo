@@ -3,6 +3,7 @@ import type { GameState } from '../game/ticTacToe'
 export type Message =
   | { type: 'hello'; name: string; emoji: string; game?: 'tic-tac-toe' } // host's hello carries game
   | { type: 'move'; cell: number }
+  | { type: 'rematch' }
   | { type: 'state'; state: GameState }
 
 /** Shape checks only; whether a move is legal is the reducer's job. */
@@ -15,6 +16,8 @@ export function parseMessage(data: unknown): Message | null {
         : null
     case 'move':
       return isCellIndex(data.cell) ? (data as Message) : null
+    case 'rematch':
+      return { type: 'rematch' }
     case 'state':
       return isGameState(data.state) ? (data as Message) : null
     default:

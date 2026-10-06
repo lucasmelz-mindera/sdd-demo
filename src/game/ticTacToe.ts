@@ -15,7 +15,20 @@ export type GameState = {
   result: Result
   rematchVotes: Seat[]
 }
-export type Action = { type: 'move'; seat: Seat; cell: number }
+export type Action =
+  | { type: 'move'; seat: Seat; cell: number }
+  | { type: 'rematch'; seat: Seat }
+
+const LINES: [number, number, number][] = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+]
 
 export function newGame(host: Profile, guest: Profile): GameState {
   return {
@@ -35,6 +48,8 @@ export function reduce(state: GameState, action: Action): GameState {
   switch (action.type) {
     case 'move':
       return move(state, action.seat, action.cell)
+    case 'rematch':
+      return rematch(state, action.seat)
   }
 }
 
@@ -47,5 +62,32 @@ function move(state: GameState, seat: Seat, cell: number): GameState {
 
   const board = state.board.slice()
   board[cell] = mark
-  return { ...state, board, turn: mark === 'X' ? 'O' : 'X' }
+  return { ...state, board, turn: other(mark), result: resultOf(board) }
 }
+
+function rematch(state: GameState, seat: Seat): GameState {
+  if (state.result.kind === 'playing') return state
+  if (state.rematchVotes.includes(seat)) return state
+
+  const rematchVotes = [...state.rematchVotes, seat]
+  if (rematchVotes.length < 2) return { ...state, rematchVotes }
+
+  const { host, guest } = state.players
+  return {
+    players: { host: { ...host, mark: other(host.mark) }, guest: { ...guest, mark: other(guest.mark) } },
+    board: Array<Cell>(9).fill(null),
+    turn: 'X',
+    result: { kind: 'playing' },
+    rematchVotes: [],
+  }
+}
+
+function resultOf(board: Cell[]): Result {
+  for (const line of LINES) {
+    const mark = board[line[0]]
+    if (mark && board[line[1]] === mark && board[line[2]] === mark) return { kind: 'win', mark, line }
+  }
+  return board.includes(null) ? { kind: 'playing' } : { kind: 'draw' }
+}
+
+const other = (mark: Mark): Mark => (mark === 'X' ? 'O' : 'X')
