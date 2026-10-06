@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ROOM_ID_ALPHABET, generateRoomId, shareUrl, toPeerId } from './roomId'
+import { ROOM_ID_ALPHABET, generateRoomId, normalizeRoomId, shareUrl, toPeerId } from './roomId'
 
 const ID_PATTERN = /^[23456789a-hjkmnp-z]{6}$/
 
@@ -20,6 +20,28 @@ describe('generateRoomId', () => {
 
   it('returns 6 chars from the alphabet with the real random source', () => {
     for (let i = 0; i < 200; i++) expect(generateRoomId()).toMatch(ID_PATTERN)
+  })
+})
+
+describe('normalizeRoomId', () => {
+  it('keeps a valid id', () => {
+    expect(normalizeRoomId('k7m2qx')).toBe('k7m2qx')
+  })
+
+  it('trims and lowercases', () => {
+    expect(normalizeRoomId('  K7M2QX \n')).toBe('k7m2qx')
+  })
+
+  it.each([
+    ['empty', ''],
+    ['too short', 'ABC'],
+    ['too long', '12345678'],
+    ['a dash', 'k7m-qx'],
+    ['an inner space', 'k7 2qx'],
+    ['an accented letter', 'k7m2qé'],
+    ['the prefixed peer id', 'sdd-ttt-k7m2qx'],
+  ])('rejects %s', (_, raw) => {
+    expect(normalizeRoomId(raw)).toBeNull()
   })
 })
 

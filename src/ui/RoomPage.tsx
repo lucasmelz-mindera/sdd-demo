@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { loadProfile, type Profile } from '../profile/profile'
+import { normalizeRoomId } from '../room/roomId'
 import { useGuestRoom } from '../room/useGuestRoom'
 import { useHostRoom } from '../room/useHostRoom'
 import { ProfileForm } from './ProfileForm'
-import { RoomScreen } from './RoomScreen'
+import { RoomEnded, RoomScreen } from './RoomScreen'
 
 export function RoomPage() {
   const { roomId = '' } = useParams()
@@ -15,6 +16,9 @@ export function RoomPage() {
   const [profile, setProfile] = useState<Profile | null>(loadProfile)
 
   if (isHost) return profile ? <HostRoom profile={profile} /> : <Navigate to="/" replace />
+  // A malformed id can't be a room, so don't ask PeerJS about it.
+  const id = normalizeRoomId(roomId)
+  if (!id) return <RoomEnded reason="not-found" />
   if (!profile) {
     return (
       <>
@@ -24,7 +28,7 @@ export function RoomPage() {
       </>
     )
   }
-  return <GuestRoom roomId={roomId} profile={profile} />
+  return <GuestRoom roomId={id} profile={profile} />
 }
 
 function HostRoom({ profile }: { profile: Profile }) {

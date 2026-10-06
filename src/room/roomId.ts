@@ -9,6 +9,12 @@ export function generateRoomId(random: (n: number) => Uint8Array = cryptoRandom)
   return Array.from(random(ROOM_ID_LENGTH), (byte) => ROOM_ID_ALPHABET[byte % ROOM_ID_ALPHABET.length]).join('')
 }
 
+/** What a guest's link becomes before it touches PeerJS; null means "Room not found". */
+export function normalizeRoomId(raw: string): string | null {
+  const id = raw.trim().toLowerCase()
+  return /^[a-z0-9]{6}$/.test(id) ? id : null
+}
+
 export function toPeerId(roomId: string): string {
   return PEER_ID_PREFIX + roomId
 }

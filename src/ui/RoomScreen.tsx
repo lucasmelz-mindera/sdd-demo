@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router'
 import type { GameState, Seat } from '../game/ticTacToe'
+import type { CloseReason } from '../net/session'
 import type { RoomView } from '../room/roomView'
 import { Board } from './Board'
 import styles from './RoomScreen.module.css'
@@ -8,7 +9,6 @@ import { ShareLink } from './ShareLink'
 type Props = { view: RoomView; move(cell: number): void; rematch(): void }
 
 export function RoomScreen({ view, move, rematch }: Props) {
-  const navigate = useNavigate()
   switch (view.status) {
     case 'starting':
       return <p className={styles.status}>Creating room…</p>
@@ -61,14 +61,29 @@ export function RoomScreen({ view, move, rematch }: Props) {
       )
     }
     case 'ended':
-      // 'left' and 'timeout' look the same to the player.
-      return (
-        <>
-          <p className={styles.status}>Opponent left</p>
-          <button onClick={() => navigate('/')}>Back to home</button>
-        </>
-      )
+      return <RoomEnded reason={view.reason} />
   }
+}
+
+const ENDED_MESSAGES: Record<CloseReason, string> = {
+  // 'left' and 'timeout' look the same to the player.
+  left: 'Opponent left',
+  timeout: 'Opponent left',
+  'not-found': 'Room not found',
+  full: 'Room is full',
+  unreachable: "Couldn't connect — your network may block peer-to-peer. Try another network.",
+  network: 'Matchmaking server unreachable, try again',
+  'create-failed': "Couldn't create a room",
+}
+
+export function RoomEnded({ reason }: { reason: CloseReason }) {
+  const navigate = useNavigate()
+  return (
+    <>
+      <p className={styles.status}>{ENDED_MESSAGES[reason]}</p>
+      <button onClick={() => navigate('/')}>Back to home</button>
+    </>
+  )
 }
 
 function statusLine(game: GameState, me: Seat): string {

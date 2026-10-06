@@ -4,7 +4,7 @@ import { hostSession, type Session } from '../net/session'
 import { DEFAULT_EMOJI } from '../profile/emojis'
 import { sanitizeProfile, type Profile } from '../profile/profile'
 import { shareUrl } from './roomId'
-import { playing, type RoomView } from './roomView'
+import { playing, unlessEnded, type RoomView } from './roomView'
 
 /** The host owns the only GameState and broadcasts it in full after every change. */
 export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) {
@@ -24,20 +24,20 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
     session.current?.send({ type: 'state', state: next })
     if (next === current) return
     game.current = next
-    setView(playing(next, 'host'))
+    setView(unlessEnded(playing(next, 'host')))
   }, [])
 
   useEffect(() => {
     const s = hostSession((e) => {
       switch (e.type) {
         case 'open':
-          setView({ status: 'waiting', shareUrl: shareUrl(e.roomId) })
+          setView(unlessEnded({ status: 'waiting', shareUrl: shareUrl(e.roomId) }))
           onOpenRef.current(e.roomId)
           return
         case 'connected':
           return
         case 'closed':
-          setView({ status: 'ended', reason: e.reason })
+          setView(unlessEnded({ status: 'ended', reason: e.reason }))
           return
         case 'message': {
           const m = e.message
@@ -47,7 +47,7 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
             game.current = newGame(profile, guest)
             s.send({ type: 'hello', name: profile.name, emoji: profile.emoji, game: 'tic-tac-toe' })
             s.send({ type: 'state', state: game.current })
-            setView(playing(game.current, 'host'))
+            setView(unlessEnded(playing(game.current, 'host')))
           } else if (m.type === 'move') {
             apply({ type: 'move', seat: 'guest', cell: m.cell })
           } else if (m.type === 'rematch') {
