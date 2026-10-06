@@ -5,6 +5,7 @@ export type Message =
   | { type: 'move'; cell: number }
   | { type: 'rematch' }
   | { type: 'state'; state: GameState }
+  | { type: 'full' } // host → a guest who arrived after the room filled
 
 /** Shape checks only; whether a move is legal is the reducer's job. */
 export function parseMessage(data: unknown): Message | null {
@@ -20,6 +21,8 @@ export function parseMessage(data: unknown): Message | null {
       return { type: 'rematch' }
     case 'state':
       return isGameState(data.state) ? (data as Message) : null
+    case 'full':
+      return { type: 'full' }
     default:
       return null
   }

@@ -1,4 +1,6 @@
+import { Link } from 'react-router'
 import type { GameState, Seat } from '../game/ticTacToe'
+import type { ClosedReason } from '../net/session'
 import type { RoomView } from '../room/roomView'
 import { Board } from './Board'
 import styles from './RoomScreen.module.css'
@@ -58,7 +60,26 @@ export function RoomScreen({ view, move, rematch }: Props) {
         </>
       )
     }
+    case 'ended':
+      return <RoomEnded reason={view.reason} />
   }
+}
+
+const ENDED_MESSAGES: Record<ClosedReason, string> = {
+  'not-found': 'Room not found',
+  full: 'Room is full',
+  unreachable: "Couldn't connect — your network may block peer-to-peer. Try another network.",
+  network: 'Matchmaking server unreachable, try again',
+  'create-failed': "Couldn't create a room",
+}
+
+export function RoomEnded({ reason }: { reason: ClosedReason }) {
+  return (
+    <>
+      <p className={styles.status}>{ENDED_MESSAGES[reason]}</p>
+      <Link to="/">Back to home</Link>
+    </>
+  )
 }
 
 function statusLine(game: GameState, me: Seat): string {
