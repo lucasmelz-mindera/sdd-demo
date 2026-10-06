@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router'
-import styles from './HomePage.module.css'
+import { GamePicker } from './GamePicker'
+import { ProfileForm } from './ProfileForm'
 
 export function HomePage() {
   const navigate = useNavigate()
   return (
     <>
-      <h1>Tic-tac-toe</h1>
-      <p>Play a friend in your browser. No accounts, no installs.</p>
-      <button className={styles.create} onClick={() => navigate('/room/new')}>
-        Create room
-      </button>
+      <h1>Play a friend</h1>
+      <p>In your browser. No accounts, no installs.</p>
+      <h2>Pick a game</h2>
+      <GamePicker />
+      <ProfileForm submitLabel="Create room" onSubmit={() => navigate('/room/new')} />
     </>
   )
 }

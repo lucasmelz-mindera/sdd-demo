@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { newGame, reduce, type Action, type GameState } from '../game/ticTacToe'
 import { hostSession, type Session } from '../net/session'
-import type { Profile } from '../profile/profile'
+import { DEFAULT_EMOJI } from '../profile/emojis'
+import { sanitizeProfile, type Profile } from '../profile/profile'
 import { shareUrl } from './roomId'
 import type { RoomView } from './roomView'
 
@@ -38,7 +39,9 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
         case 'message': {
           const m = e.message
           if (m.type === 'hello' && !game.current) {
-            game.current = newGame(profile, { name: m.name, emoji: m.emoji })
+            // Never trust the guest's name/emoji as sent; an unusable name gets a stand-in.
+            const guest = sanitizeProfile(m) ?? { name: 'Guest', emoji: DEFAULT_EMOJI }
+            game.current = newGame(profile, guest)
             s.send({ type: 'hello', name: profile.name, emoji: profile.emoji, game: 'tic-tac-toe' })
             s.send({ type: 'state', state: game.current })
             setView({ status: 'playing', game: game.current, me: 'host' })
