@@ -1,0 +1,34 @@
+.status {
+  font-size: 20px;
+  color: var(--text-h);
+  margin: 16px 0;
+}
+
+.players {
+  display: flex;
+  gap: 8px;
+}
+
+.player,
+.active {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+}
+
+.active {
+  border-color: var(--accent);
+}
+
+.emoji {
+  font-size: 24px;
+}
+
+.mark {
+  margin-left: auto;
+  color: var(--text-h);
+}

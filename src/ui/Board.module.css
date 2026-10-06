@@ -1,0 +1,25 @@
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: min(100%, 360px);
+  margin: 0 auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  font-size: clamp(32px, 12vw, 64px);
+  font-weight: 600;
+  color: var(--text-h);
+  background: var(--accent-bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+}
+
+.cell:not(:disabled):hover {
+  border-color: var(--accent);
+}
+
+.cell:disabled {
+  cursor: default;
+}
