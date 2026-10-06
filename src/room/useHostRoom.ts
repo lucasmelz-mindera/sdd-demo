@@ -36,6 +36,9 @@ export function useHostRoom(profile: Profile, onOpen: (roomId: string) => void) 
           return
         case 'connected':
           return
+        case 'closed':
+          setView({ status: 'ended', reason: e.reason })
+          return
         case 'message': {
           const m = e.message
           if (m.type === 'hello' && !game.current) {

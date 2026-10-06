@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router'
 import type { GameState, Seat } from '../game/ticTacToe'
 import type { RoomView } from '../room/roomView'
 import { Board } from './Board'
@@ -7,6 +8,7 @@ import { ShareLink } from './ShareLink'
 type Props = { view: RoomView; move(cell: number): void; rematch(): void }
 
 export function RoomScreen({ view, move, rematch }: Props) {
+  const navigate = useNavigate()
   switch (view.status) {
     case 'starting':
       return <p className={styles.status}>Creating room…</p>
@@ -58,6 +60,14 @@ export function RoomScreen({ view, move, rematch }: Props) {
         </>
       )
     }
+    case 'ended':
+      // 'left' and 'timeout' look the same to the player.
+      return (
+        <>
+          <p className={styles.status}>Opponent left</p>
+          <button onClick={() => navigate('/')}>Back to home</button>
+        </>
+      )
   }
 }
 
