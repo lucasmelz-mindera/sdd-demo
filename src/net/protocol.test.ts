@@ -12,6 +12,8 @@ describe('parseMessage accepts', () => {
     ['move to cell 8', { type: 'move', cell: 8 }],
     ['rematch', { type: 'rematch' }],
     ['state', { type: 'state', state }],
+    ['ping', { type: 'ping' }],
+    ['leave', { type: 'leave' }],
   ])('%s', (_, data) => {
     expect(parseMessage(data)).toEqual(data)
   })

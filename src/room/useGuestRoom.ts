@@ -14,6 +14,8 @@ export function useGuestRoom(roomId: string, profile: Profile) {
         s.send({ type: 'hello', name: profile.name, emoji: profile.emoji })
       } else if (e.type === 'message' && e.message.type === 'state') {
         setView(playing(e.message.state, 'guest'))
+      } else if (e.type === 'closed') {
+        setView({ status: 'ended', reason: e.reason })
       }
     })
     session.current = s

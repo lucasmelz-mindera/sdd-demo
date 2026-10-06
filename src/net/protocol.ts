@@ -5,6 +5,8 @@ export type Message =
   | { type: 'move'; cell: number }
   | { type: 'rematch' }
   | { type: 'state'; state: GameState }
+  | { type: 'ping' }
+  | { type: 'leave' }
 
 /** Shape checks only; whether a move is legal is the reducer's job. */
 export function parseMessage(data: unknown): Message | null {
@@ -20,6 +22,10 @@ export function parseMessage(data: unknown): Message | null {
       return { type: 'rematch' }
     case 'state':
       return isGameState(data.state) ? (data as Message) : null
+    case 'ping':
+      return { type: 'ping' }
+    case 'leave':
+      return { type: 'leave' }
     default:
       return null
   }
