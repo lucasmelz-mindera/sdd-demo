@@ -1,16 +1,17 @@
 // The only file that imports peerjs. It turns PeerJS into a small typed event
-// API and hides peer ids, serialization, retries and the join timeout.
+// API and hides peer ids, serialization, retries, the join timeout and the heartbeat.
 import { Peer, type DataConnection, type PeerError } from 'peerjs'
 import { generateRoomId, toPeerId } from '../room/roomId'
+import { createHeartbeat, type Heartbeat } from './heartbeat'
 import { parseMessage, type Message } from './protocol'
 
-export type ClosedReason = 'not-found' | 'full' | 'network' | 'unreachable' | 'create-failed'
+export type CloseReason = 'left' | 'timeout' | 'not-found' | 'full' | 'network' | 'unreachable' | 'create-failed'
 
 export type SessionEvent =
   | { type: 'open'; roomId: string } // host: room is live, show share link
   | { type: 'connected' } // channel open (guest: send hello)
-  | { type: 'message'; message: Message } // already parsed; malformed dropped here
-  | { type: 'closed'; reason: ClosedReason } // final; nothing follows it
+  | { type: 'message'; message: Message } // already parsed; malformed, ping, leave and full dropped here
+  | { type: 'closed'; reason: CloseReason } // the room is over; the session is already torn down
 
 export type Session = { send(m: Message): void; close(): void }
 
@@ -87,21 +88,39 @@ function turnAway(conn: DataConnection) {
 function createChannel(onEvent: (e: SessionEvent) => void) {
   let peer: Peer | null = null
   let conn: DataConnection | null = null
+  let heartbeat: Heartbeat | null = null
   let connected = false
   let closed = false
 
   const emit = (e: SessionEvent) => {
     if (!closed) onEvent(e)
   }
-  const finish = () => {
+  const send = (m: Message) => {
+    if (conn?.open) conn.send(m)
+  }
+
+  // `close` alone can't be trusted to fire, so a tab going away also says so
+  // in-band and destroys the peer to tear the channel down promptly.
+  function close() {
     if (closed) return
+    send({ type: 'leave' })
+    shutdown()
+  }
+
+  function end(reason: CloseReason) {
+    if (closed) return
+    emit({ type: 'closed', reason })
+    shutdown()
+  }
+
+  function shutdown() {
     closed = true
+    heartbeat?.stop()
+    window.removeEventListener('pagehide', close)
     peer?.destroy()
   }
-  const end = (reason: ClosedReason) => {
-    emit({ type: 'closed', reason })
-    finish()
-  }
+
+  window.addEventListener('pagehide', close)
 
   return {
     emit,
@@ -110,30 +129,33 @@ function createChannel(onEvent: (e: SessionEvent) => void) {
     isConnected: () => connected,
     isClosed: () => closed,
     attach(c: DataConnection) {
-      conn?.close()
+      const replaced = conn
       conn = c
+      replaced?.close()
       // A replaced connection's late events are not ours any more.
       const current = () => conn === c
       c.on('open', () => {
         if (!current()) return
         connected = true
+        heartbeat = createHeartbeat({ send: () => send({ type: 'ping' }), onTimeout: () => end('timeout') })
         emit({ type: 'connected' })
       })
       c.on('data', (data) => {
         if (!current()) return
+        heartbeat?.seen() // any message counts as proof of life
         const message = parseMessage(data)
-        if (message?.type === 'full') end('full')
-        else if (message) emit({ type: 'message', message })
+        if (message?.type === 'leave') end('left')
+        else if (message?.type === 'full') end('full')
+        else if (message && message.type !== 'ping') emit({ type: 'message', message })
       })
       c.on('error', (err: PeerError<string>) => {
         if (current() && err.type === 'negotiation-failed') end('unreachable')
       })
+      // Only an opponent who got in can leave; a failed handshake is reported by its error.
+      c.on('close', () => {
+        if (current() && connected) end('left')
+      })
     },
-    session: {
-      send(m: Message) {
-        if (conn?.open) conn.send(m)
-      },
-      close: finish,
-    },
+    session: { send, close },
   }
 }

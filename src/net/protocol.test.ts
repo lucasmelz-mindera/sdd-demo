@@ -13,6 +13,8 @@ describe('parseMessage accepts', () => {
     ['rematch', { type: 'rematch' }],
     ['state', { type: 'state', state }],
     ['full', { type: 'full' }],
+    ['ping', { type: 'ping' }],
+    ['leave', { type: 'leave' }],
   ])('%s', (_, data) => {
     expect(parseMessage(data)).toEqual(data)
   })
