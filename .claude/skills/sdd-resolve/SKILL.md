@@ -1,4 +1,12 @@
+---
+name: sdd-resolve
+description: SDD phase 2 — settle one open decision ticket (grill the user or summarise research), record the resolution and update the map.
+disable-model-invocation: true
+---
+
 # Resolve
+
+Part of the [sdd](../sdd/SKILL.md) workflow. Read [conventions.md](../sdd/conventions.md) first — the issue graph, GitHub operations, worktrees and grilling format it describes apply here.
 
 Settle one decision ticket.
 

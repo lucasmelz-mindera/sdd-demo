@@ -1,4 +1,12 @@
+---
+name: sdd-chart
+description: SDD phase 1 — grill the idea into a map issue plus the decision tickets (grilling/research) the spec needs, and fire research subagents.
+disable-model-invocation: true
+---
+
 # Chart
+
+Part of the [sdd](../sdd/SKILL.md) workflow. Read [conventions.md](../sdd/conventions.md) first — the issue graph, GitHub operations, worktrees and grilling format it describes apply here.
 
 Turn the idea into a map and the decision tickets the spec will need. This phase names questions; the tickets answer them.
 

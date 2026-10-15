@@ -1,4 +1,12 @@
+---
+name: sdd-spec
+description: SDD phase 3 — collapse the map and resolved decision tickets into one sdd:spec issue.
+disable-model-invocation: true
+---
+
 # Spec
+
+Part of the [sdd](../sdd/SKILL.md) workflow. Read [conventions.md](../sdd/conventions.md) first — the issue graph, GitHub operations, worktrees and grilling format it describes apply here.
 
 Collapse the map into one spec. Every decision is already made; this phase synthesises, it doesn't ask.
 

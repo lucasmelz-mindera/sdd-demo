@@ -1,4 +1,12 @@
+---
+name: sdd-build
+description: SDD phase 5 — implement one unblocked sdd:build ticket in a fresh worktree and open its PR.
+disable-model-invocation: true
+---
+
 # Build
+
+Part of the [sdd](../sdd/SKILL.md) workflow. Read [conventions.md](../sdd/conventions.md) first — the issue graph, GitHub operations, worktrees and grilling format it describes apply here.
 
 Implement one build ticket.
 

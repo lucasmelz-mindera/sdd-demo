@@ -1,4 +1,12 @@
+---
+name: sdd-tickets
+description: SDD phase 4 — slice the spec into tracer-bullet sdd:build tickets wired with blocked-by edges.
+disable-model-invocation: true
+---
+
 # Tickets
+
+Part of the [sdd](../sdd/SKILL.md) workflow. Read [conventions.md](../sdd/conventions.md) first — the issue graph, GitHub operations, worktrees and grilling format it describes apply here.
 
 Slice the spec into build tickets.
 
