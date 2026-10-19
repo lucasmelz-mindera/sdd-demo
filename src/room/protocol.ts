@@ -1,9 +1,8 @@
-export type Mark = 'X' | 'O'
-export type Cell = Mark | null
+import type { Cell, Mark, Result } from '../game/ticTacToe'
+
+export type { Cell, Mark }
 
 export type PlayerInfo = { name: string; emoji: string }
-
-export type GameResult = null | { winner: Mark; line: [number, number, number] } | 'draw'
 
 export type StateMessage = {
   type: 'state'
@@ -11,7 +10,7 @@ export type StateMessage = {
   turn: Mark
   players: Record<Mark, PlayerInfo>
   you: Mark
-  result: GameResult
+  result: Result
   rematch: Record<Mark, boolean>
 }
 
