@@ -1,0 +1,196 @@
+:root {
+  --bg: #f6f4ef;
+  --surface: #ffffff;
+  --text: #1f1d1a;
+  --muted: #6b665e;
+  --border: #d9d4ca;
+  --accent: #2f6fdf;
+  --accent-text: #ffffff;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #18171a;
+    --surface: #232226;
+    --text: #ecebe8;
+    --muted: #9c988f;
+    --border: #3a383d;
+    --accent: #6c9cff;
+    --accent-text: #0e0e10;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 0.5rem 1rem;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+a {
+  color: var(--accent);
+}
+
+.screen {
+  max-width: 32rem;
+  margin: 4rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+h1 {
+  margin: 0;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border-radius: 12px;
+}
+
+.game-card:not(:disabled):hover {
+  border-color: var(--accent);
+}
+
+.game-icon {
+  font-size: 2rem;
+}
+
+.game-name {
+  font-weight: 600;
+}
+
+.game-badge {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.setup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.setup label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.25rem;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.emoji-grid legend {
+  margin-bottom: 0.25rem;
+}
+
+.emoji {
+  font-size: 1.5rem;
+  padding: 0.25rem;
+}
+
+.emoji.selected {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.share {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.share input {
+  flex: 1;
+  min-width: 0;
+}
+
+.waiting {
+  color: var(--muted);
+}
+
+.players {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.players li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.player-emoji {
+  font-size: 1.5rem;
+}
+
+.player-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.player-mark {
+  color: var(--muted);
+}
