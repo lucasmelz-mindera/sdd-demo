@@ -61,6 +61,11 @@ describe('parseRoute', () => {
     '#/tic-tac-toe/k7m2q0',
     '#/tic-tac-toe/K7M2QX',
     '#/tic-tac-toe/k7m2qx/extra',
+    '#/tic-tac-toe/k7m2q',
+    '#/tic-tac-toe/k7m2qxk',
+    '#/tic-tac-toe/k7m2qx?x=1',
+    '#/Tic-Tac-Toe/k7m2qx',
+    '#tic-tac-toe/k7m2qx',
     '#/nonsense',
   ])('%j is a bad link', (hash) => {
     expect(parseRoute(hash)).toEqual({ kind: 'bad-link' })

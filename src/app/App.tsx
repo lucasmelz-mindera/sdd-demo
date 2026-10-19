@@ -30,6 +30,7 @@ export function App() {
     return (
       <HostRoom
         player={hosting.player}
+        onLeave={() => setHosting(null)}
         onOpen={(roomId) => {
           setHosting({ player: hosting.player, roomId })
           navigate(roomHash(roomId))
@@ -54,13 +55,13 @@ function Home({ onCreate }: { onCreate: (player: PlayerInfo) => void }) {
   return <PlayerSetup title="Tic-tac-toe" submitLabel="Create room" onSubmit={onCreate} />
 }
 
-function HostRoom({ player, onOpen }: { player: PlayerInfo; onOpen: (roomId: string) => void }) {
+function HostRoom({ player, onOpen, onLeave }: { player: PlayerInfo; onOpen: (roomId: string) => void; onLeave: () => void }) {
   const { status, shareLink, game, move } = usePeerHost(player, onOpen)
   switch (status) {
     case 'opening':
       return <StatusScreen title="Creating room…" />
     case 'error':
-      return <StatusScreen title="Connection error" message="Couldn't reach the game server." />
+      return <StatusScreen title="Connection error" message="Couldn't reach the game server." onHome={onLeave} />
     case 'waiting':
       return <Lobby shareLink={shareLink!} />
     case 'playing':

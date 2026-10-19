@@ -1,6 +1,7 @@
 import Peer, { type DataConnection, type PeerError } from 'peerjs'
 import { useEffect, useRef, useState } from 'react'
 import { hostReducer, initialHostState, type HostEvent, type HostState } from './hostSession'
+import { isConnectionError } from './peerErrors'
 import { isGuestMessage, type PlayerInfo } from './protocol'
 import { generateRoomId, shareLink, toPeerId } from './roomId'
 
@@ -56,7 +57,7 @@ export function usePeerHost(player: PlayerInfo, onOpen: (roomId: string) => void
         if (err.type === 'unavailable-id' && attempt < MAX_ID_ATTEMPTS) {
           p.destroy()
           open(attempt + 1)
-        } else if (err.type !== 'peer-unavailable') {
+        } else if (err.type === 'unavailable-id' || isConnectionError(err.type)) {
           setFailed(true)
         }
       })
