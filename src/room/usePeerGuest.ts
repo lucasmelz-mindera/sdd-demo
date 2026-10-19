@@ -1,5 +1,5 @@
-import Peer, { type PeerError } from 'peerjs'
-import { useEffect, useState } from 'react'
+import Peer, { type DataConnection, type PeerError } from 'peerjs'
+import { useEffect, useRef, useState } from 'react'
 import { isHostMessage, type GuestMessage, type PlayerInfo, type StateMessage } from './protocol'
 import { toPeerId } from './roomId'
 
@@ -9,12 +9,13 @@ const FATAL_PEER_ERRORS = ['network', 'server-error', 'socket-error', 'socket-cl
 
 export type GuestStatus = 'connecting' | 'playing' | 'not-found' | 'error'
 
-export type PeerGuest = { status: GuestStatus; state: StateMessage | null }
+export type PeerGuest = { status: GuestStatus; state: StateMessage | null; move: (cell: number) => void }
 
 // Owns the guest's Peer: connects to the room's host, says hello and keeps the latest `state`.
 export function usePeerGuest(roomId: string, player: PlayerInfo): PeerGuest {
   const [status, setStatus] = useState<GuestStatus>('connecting')
   const [state, setState] = useState<StateMessage | null>(null)
+  const connRef = useRef<DataConnection | null>(null)
 
   useEffect(() => {
     // An explicit ID: with none, PeerJS fetches one over HTTP and still opens its socket
@@ -33,6 +34,7 @@ export function usePeerGuest(roomId: string, player: PlayerInfo): PeerGuest {
       conn.on('open', () => {
         if (!live()) return
         connected = true
+        connRef.current = conn
         const hello: GuestMessage = { type: 'hello', name: player.name, emoji: player.emoji }
         conn.send(hello)
       })
@@ -56,9 +58,15 @@ export function usePeerGuest(roomId: string, player: PlayerInfo): PeerGuest {
 
     return () => {
       clearTimeout(timeout)
+      connRef.current = null
       peer.destroy()
     }
   }, [roomId, player])
 
-  return { status, state }
+  // A move is only an intent: the board changes when the host answers with `state`.
+  const move = (cell: number) => {
+    const message: GuestMessage = { type: 'move', cell }
+    connRef.current?.send(message)
+  }
+  return { status, state, move }
 }

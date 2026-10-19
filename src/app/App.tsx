@@ -4,8 +4,8 @@ import { roomHash, type Route } from '../room/roomId'
 import { usePeerGuest } from '../room/usePeerGuest'
 import { usePeerHost } from '../room/usePeerHost'
 import { GamePicker } from '../ui/GamePicker'
+import { GameScreen } from '../ui/GameScreen'
 import { Lobby } from '../ui/Lobby'
-import { Players } from '../ui/Players'
 import { PlayerSetup } from '../ui/PlayerSetup'
 import { StatusScreen } from '../ui/StatusScreen'
 import { navigate, useHashRoute } from './useHashRoute'
@@ -55,7 +55,7 @@ function Home({ onCreate }: { onCreate: (player: PlayerInfo) => void }) {
 }
 
 function HostRoom({ player, onOpen }: { player: PlayerInfo; onOpen: (roomId: string) => void }) {
-  const { status, shareLink, game } = usePeerHost(player, onOpen)
+  const { status, shareLink, game, move } = usePeerHost(player, onOpen)
   switch (status) {
     case 'opening':
       return <StatusScreen title="Creating room…" />
@@ -64,7 +64,17 @@ function HostRoom({ player, onOpen }: { player: PlayerInfo; onOpen: (roomId: str
     case 'waiting':
       return <Lobby shareLink={shareLink!} />
     case 'playing':
-      return <Players players={game.hostMark === 'X' ? { X: game.host, O: game.guest! } : { X: game.guest!, O: game.host }} you={game.hostMark} />
+    case 'result':
+      return (
+        <GameScreen
+          board={game.board}
+          turn={game.turn}
+          result={game.result}
+          players={game.hostMark === 'X' ? { X: game.host, O: game.guest! } : { X: game.guest!, O: game.host }}
+          you={game.hostMark}
+          onMove={move}
+        />
+      )
   }
 }
 
@@ -75,7 +85,7 @@ function GuestRoom({ roomId }: { roomId: string }) {
 }
 
 function GuestConnection({ roomId, player }: { roomId: string; player: PlayerInfo }) {
-  const { status, state } = usePeerGuest(roomId, player)
+  const { status, state, move } = usePeerGuest(roomId, player)
   switch (status) {
     case 'connecting':
       return <StatusScreen title="Connecting…" />
@@ -84,6 +94,6 @@ function GuestConnection({ roomId, player }: { roomId: string; player: PlayerInf
     case 'error':
       return <StatusScreen title="Connection error" message="Couldn't connect to the room." />
     case 'playing':
-      return <Players players={state!.players} you={state!.you} />
+      return <GameScreen board={state!.board} turn={state!.turn} result={state!.result} players={state!.players} you={state!.you} onMove={move} />
   }
 }
