@@ -1,5 +1,5 @@
 import Peer, { type DataConnection, type PeerError } from 'peerjs'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { hostReducer, initialHostState, type HostEvent, type HostState } from './hostSession'
 import { isConnectionError } from './peerErrors'
 import { isGuestMessage, type PlayerInfo } from './protocol'
@@ -7,13 +7,14 @@ import { generateRoomId, shareLink, toPeerId } from './roomId'
 
 const MAX_ID_ATTEMPTS = 3
 
-export type HostStatus = 'opening' | 'waiting' | 'playing' | 'error'
+export type HostStatus = 'opening' | 'waiting' | 'playing' | 'result' | 'error'
 
 export type PeerHost = {
   status: HostStatus
   roomId: string | null
   shareLink: string | null
   game: HostState
+  move: (cell: number) => void
 }
 
 // Owns the host's Peer: opens it under a fresh room ID (retrying on a taken ID),
@@ -22,6 +23,7 @@ export function usePeerHost(player: PlayerInfo, onOpen: (roomId: string) => void
   const [roomId, setRoomId] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
   const [game, setGame] = useState(() => initialHostState(player))
+  const dispatchRef = useRef<(event: HostEvent) => void>(() => {})
 
   useEffect(() => {
     let peer: Peer | null = null
@@ -37,6 +39,7 @@ export function usePeerHost(player: PlayerInfo, onOpen: (roomId: string) => void
       setGame(state)
       for (const message of step.outgoing) guestConn?.send(message)
     }
+    dispatchRef.current = dispatch
 
     const open = (attempt: number) => {
       const id = generateRoomId()
@@ -69,6 +72,7 @@ export function usePeerHost(player: PlayerInfo, onOpen: (roomId: string) => void
         conn.on('data', (data) => {
           if (!live(p) || conn !== guestConn || !isGuestMessage(data)) return
           if (data.type === 'hello') dispatch({ type: 'guestHello', player: { name: data.name, emoji: data.emoji } })
+          else if (data.type === 'move') dispatch({ type: 'guestMove', cell: data.cell })
         })
       })
     }
@@ -81,6 +85,7 @@ export function usePeerHost(player: PlayerInfo, onOpen: (roomId: string) => void
     // The room lives for as long as this component; player and onOpen are read once.
   }, [])
 
-  const status: HostStatus = failed ? 'error' : roomId === null ? 'opening' : game.phase === 'waiting' ? 'waiting' : 'playing'
-  return { status, roomId, shareLink: roomId && shareLink(roomId), game }
+  const status: HostStatus = failed ? 'error' : roomId === null ? 'opening' : game.phase
+  const move = (cell: number) => dispatchRef.current({ type: 'hostMove', cell })
+  return { status, roomId, shareLink: roomId && shareLink(roomId), game, move }
 }

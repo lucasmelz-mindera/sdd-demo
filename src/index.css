@@ -194,3 +194,46 @@ input {
 .player-mark {
   color: var(--muted);
 }
+
+.players li.to-move {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+}
+
+.status {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  width: min(100%, 20rem);
+  margin: 0 auto;
+}
+
+.cell {
+  aspect-ratio: 1;
+  font-size: 2.5rem;
+  font-weight: 700;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.cell:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.cell:not(:disabled):hover {
+  border-color: var(--accent);
+}
+
+.cell.win {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
